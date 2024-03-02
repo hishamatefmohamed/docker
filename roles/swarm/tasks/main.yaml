@@ -1,0 +1,59 @@
+
+- name:
+  shell: |
+    mount -o loop /dev/sr0 /mnt 
+  ignore_errors: true
+
+
+- name: Create a directory with custom attributes
+  ansible.builtin.file:
+    path: /server
+    state: directory
+    owner: css
+    group: css
+    mode: 0775
+
+
+- name: server preparation
+  copy:
+    src: "{{ item }}"
+    dest: /etc/yum.repos.d/
+    mode: 0777
+  with_fileglob:
+    - /server/playbooks/redis/roles/redis/template/*.repo
+  
+
+- name:  copy docker componant
+  copy:
+    src: "{{ item }}"
+    dest: /server/docker
+    owner: css
+    group: css
+    mode: 600
+  with_fileglob:
+    - containerd
+    - containerd-shim-runc-v2
+    - ctr
+    - docker
+    - docker-compose
+    - dockerd
+    - docker-init
+    - docker-proxy
+    - runc
+
+  
+- name: copy env file
+  copy:
+    src:  /server/playbooks/docker-swarm/roles/swarm/files/env.sh
+    dest: /server/
+    mode: 0777
+    owner: css
+    group: css
+
+    
+- name: Add a line to a file ~/.bash_profile
+  lineinfile:
+    path: ~/.bash_profile
+    line: source /server/env.sh
+    owner: css
+    group: css

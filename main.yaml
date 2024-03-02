@@ -1,0 +1,7 @@
+- name: docker
+  gather_facts: true
+  hosts: docker
+  any_errors_fatal: true
+  become: true
+  roles:
+    - swarm
